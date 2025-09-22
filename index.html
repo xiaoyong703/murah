@@ -3,16 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Website</title>
+    <title>MyShop - Modern Ecommerce</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to My Simple Website!</h1>
-        <p>This is a basic web page built with HTML, CSS, and JavaScript.</p>
-        <button id="helloBtn">Click Me!</button>
-        <p id="message"></p>
-    </div>
+    <header>
+        <div class="logo">MyShop</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Shop</a>
+            <a href="#">Contact</a>
+            <a href="#">Cart <span id="cart-count">0</span></a>
+        </nav>
+    </header>
+    <main>
+        <section class="hero">
+            <h1>Welcome to MyShop</h1>
+            <p>Discover the best products at unbeatable prices!</p>
+        </section>
+        <section class="products">
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1513708927688-890fe41c3b6b?auto=format&fit=crop&w=400&q=80" alt="Product 1">
+                <h2>Wireless Headphones</h2>
+                <p class="price">$59.99</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=400&q=80" alt="Product 2">
+                <h2>Smart Watch</h2>
+                <p class="price">$99.99</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Product 3">
+                <h2>Bluetooth Speaker</h2>
+                <p class="price">$39.99</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1512499617640-c2f999098c01?auto=format&fit=crop&w=400&q=80" alt="Product 4">
+                <h2>Fitness Tracker</h2>
+                <p class="price">$29.99</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 MyShop. All rights reserved.</p>
+    </footer>
     <script src="script.js"></script>
 </body>
 </html>
