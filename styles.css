@@ -1,120 +1,140 @@
+/* Custom CSS to complement Tailwind */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f7f7f7;
-    color: #222;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    transition: all 0.3s ease;
 }
 
-header {
-    background: #222;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 18px 40px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.logo {
-    font-size: 1.7rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-}
-nav a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 28px;
-    font-size: 1.1rem;
-    transition: color 0.2s;
-}
-nav a:hover {
-    color: #ff9800;
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
 }
 
-.hero {
-    background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
-    color: #fff;
-    text-align: center;
-    padding: 60px 20px 40px 20px;
-}
-.hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-.hero p {
-    font-size: 1.2rem;
+/* Mobile hamburger menu */
+@media (max-width: 768px) {
+    .mobile-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 20px;
+    }
+    
+    .mobile-menu.active {
+        display: block;
+    }
+    
+    .mobile-menu a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 }
 
-.products {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 32px;
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 0 20px;
+/* Enhanced animations */
+.bounce-in {
+    animation: bounceIn 0.8s ease-out;
 }
-.product-card {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    padding: 20px 18px 28px 18px;
-    text-align: center;
-    transition: box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
 }
-.product-card:hover {
-    box-shadow: 0 4px 24px rgba(255,152,0,0.15);
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
 }
-.product-card img {
-    width: 100%;
-    max-width: 180px;
-    border-radius: 8px;
-    margin-bottom: 18px;
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
-.product-card h2 {
-    font-size: 1.2rem;
-    margin: 10px 0 6px 0;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
 }
-.product-card .price {
-    color: #ff9800;
-    font-size: 1.1rem;
-    margin-bottom: 14px;
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
 }
-.add-to-cart {
-    background: #ff9800;
-    color: #fff;
-    border: none;
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
     border-radius: 4px;
-    padding: 10px 22px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.add-to-cart:hover {
-    background: #e68900;
 }
 
-footer {
-    background: #222;
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Flash Banner */
+.flash-banner {
+    background: linear-gradient(90deg, #ff4757, #ff6b7a);
     color: #fff;
     text-align: center;
-    padding: 18px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    font-size: 1rem;
+    padding: 12px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
 }
-@media (max-width: 700px) {
-    header {
-        flex-direction: column;
-        padding: 18px 10px;
-    }
-    .products {
-        grid-template-columns: 1fr;
-    }
-    .hero {
-        padding: 40px 10px 30px 10px;
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Filter buttons - complementing Tailwind */
+.filter-btn.active {
+    background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    transform: translateY(-2px);
+}
+
+/* FAQ Answer toggle */
+.faq-answer {
+    display: none;
+}
+
+.faq-item.active .faq-answer {
+    display: block;
+}
+
+/* Social Proof */
+.social-proof {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    z-index: 1000;
+    transform: translateX(-300px);
+    transition: transform 0.5s ease;
+}
+
+.social-proof.show {
+    transform: translateX(0);
+}
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .social-proof {
+        bottom: 20px;
+        left: 20px;
+        font-size: 0.9rem;
     }
 }

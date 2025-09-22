@@ -2,55 +2,387 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyShop - Modern Ecommerce</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PremiumHub - Unlock Premium for Less</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <div class="logo">MyShop</div>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Shop</a>
-            <a href="#">Contact</a>
-            <a href="#">Cart <span id="cart-count">0</span></a>
+    <header class="fixed top-0 w-full z-50 bg-white/10 backdrop-blur-lg border-b border-white/20">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="logo text-2xl font-bold text-white">
+                    <i class="fas fa-gem mr-2"></i>PremiumHub
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-white/90 hover:text-white transition-colors">Home</a>
+                    <a href="#services" class="text-white/90 hover:text-white transition-colors">Services</a>
+                    <a href="#faq" class="text-white/90 hover:text-white transition-colors">FAQ</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors">
+                        <i class="fas fa-moon text-white" id="theme-icon"></i>
+                    </button>
+                    <div class="cart-btn bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition-all cursor-pointer">
+                        <i class="fas fa-shopping-cart text-white mr-2"></i>
+                        <span class="text-white font-semibold">Cart</span>
+                        <span id="cart-count" class="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs">0</span>
+                    </div>
+                </div>
+            </div>
         </nav>
     </header>
+
+    <!-- Flash Deal Banner -->
+    <div class="flash-banner">
+        <span>🔥 Flash Deal: 30% OFF Spotify Premium - Ends in <span id="countdown">23:59:59</span></span>
+    </div>
+
     <main>
-        <section class="hero">
-            <h1>Welcome to MyShop</h1>
-            <p>Discover the best products at unbeatable prices!</p>
+        <!-- Hero Section -->
+        <section class="hero min-h-screen flex items-center justify-center pt-20" data-aos="fade-up">
+            <div class="hero-content text-center max-w-4xl mx-auto px-6">
+                <h1 class="text-6xl md:text-7xl font-black text-white mb-6 leading-tight" data-aos="fade-up" data-aos-delay="100">
+                    Unlock Premium<br>
+                    <span class="bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">for Less</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white/90 mb-12" data-aos="fade-up" data-aos-delay="200">
+                    Process within 24 hours • Trusted Access • Lifetime Guarantee
+                </p>
+                <div class="trust-badges flex flex-wrap justify-center gap-6 mb-12" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border border-white/30">
+                        <i class="fas fa-bolt text-yellow-400 mr-2"></i>
+                        <span class="text-white font-semibold">Instant Delivery</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border border-white/30">
+                        <i class="fas fa-shield-alt text-green-400 mr-2"></i>
+                        <span class="text-white font-semibold">Secure Payment</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border border-white/30">
+                        <i class="fas fa-headset text-blue-400 mr-2"></i>
+                        <span class="text-white font-semibold">24/7 Support</span>
+                    </div>
+                </div>
+                <button class="cta-btn bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold py-4 px-12 rounded-full text-xl transition-all transform hover:scale-105 shadow-2xl" data-aos="fade-up" data-aos-delay="400">
+                    <i class="fas fa-rocket mr-2"></i>Get Started Now
+                </button>
+            </div>
         </section>
-        <section class="products">
-            <div class="product-card">
-                <img src="https://images.unsplash.com/photo-1513708927688-890fe41c3b6b?auto=format&fit=crop&w=400&q=80" alt="Product 1">
-                <h2>Wireless Headphones</h2>
-                <p class="price">$59.99</p>
-                <button class="add-to-cart">Add to Cart</button>
+
+        <!-- Popular Services Banner -->
+        <section class="popular-services">
+            <h2>Popular Services</h2>
+            <div class="service-logos">
+                <div class="service-logo">🎵 Spotify</div>
+                <div class="service-logo">🎬 Netflix</div>
+                <div class="service-logo">✂️ CapCut</div>
+                <div class="service-logo">📺 YouTube</div>
+                <div class="service-logo">🎥 Adobe</div>
+                <div class="service-logo">☁️ Canva</div>
             </div>
-            <div class="product-card">
-                <img src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=400&q=80" alt="Product 2">
-                <h2>Smart Watch</h2>
-                <p class="price">$99.99</p>
-                <button class="add-to-cart">Add to Cart</button>
+        </section>
+
+        <!-- Product Filters -->
+        <section class="products-section">
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="music">Music</button>
+                <button class="filter-btn" data-filter="video">Video</button>
+                <button class="filter-btn" data-filter="editing">Editing</button>
+                <button class="filter-btn" data-filter="others">Others</button>
             </div>
-            <div class="product-card">
-                <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Product 3">
-                <h2>Bluetooth Speaker</h2>
-                <p class="price">$39.99</p>
-                <button class="add-to-cart">Add to Cart</button>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-6">
+                <div class="product-card group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:transform hover:scale-105" data-category="music" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-2xl flex items-center justify-center text-2xl">
+                                <i class="fab fa-spotify text-white"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-white">Spotify Premium</h3>
+                                <span class="text-green-400 text-sm font-semibold">Most Popular</span>
+                            </div>
+                        </div>
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">30% OFF</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-green-400 mr-3"></i>Ad-Free Music
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-green-400 mr-3"></i>Unlimited Skips
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-green-400 mr-3"></i>Offline Downloads
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-green-400 mr-3"></i>High Quality Audio
+                        </li>
+                    </ul>
+                    <div class="text-center mb-6">
+                        <span class="text-white/60 line-through text-lg mr-2">$9.99</span>
+                        <span class="text-4xl font-bold text-white">$6.99</span>
+                        <span class="text-white/80">/mo</span>
+                    </div>
+                    <button class="buy-btn w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform group-hover:scale-105 shadow-xl" data-service="Spotify Premium">
+                        <i class="fas fa-shopping-cart mr-2"></i>Buy Now
+                    </button>
+                </div>
+
+                <div class="product-card group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:transform hover:scale-105" data-category="video" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-2xl">
+                                <i class="fas fa-play text-white"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-white">Netflix Premium</h3>
+                                <span class="text-red-400 text-sm font-semibold">4K Quality</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>4K Ultra HD
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>4 Screens
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>All Content
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>Download & Watch
+                        </li>
+                    </ul>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-bold text-white">$8.99</span>
+                        <span class="text-white/80">/mo</span>
+                    </div>
+                    <button class="buy-btn w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform group-hover:scale-105 shadow-xl" data-service="Netflix Premium">
+                        <i class="fas fa-shopping-cart mr-2"></i>Buy Now
+                    </button>
+                </div>
+
+                <div class="product-card group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:transform hover:scale-105" data-category="editing" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center text-2xl">
+                                <i class="fas fa-cut text-white"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-white">CapCut Pro</h3>
+                                <span class="text-purple-400 text-sm font-semibold">Editor's Choice</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-purple-400 mr-3"></i>No Watermark
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-purple-400 mr-3"></i>Premium Effects
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-purple-400 mr-3"></i>HD Export
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-purple-400 mr-3"></i>AI Features
+                        </li>
+                    </ul>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-bold text-white">$4.99</span>
+                        <span class="text-white/80">/mo</span>
+                    </div>
+                    <button class="buy-btn w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform group-hover:scale-105 shadow-xl" data-service="CapCut Pro">
+                        <i class="fas fa-shopping-cart mr-2"></i>Buy Now
+                    </button>
+                </div>
+
+                <div class="product-card group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:transform hover:scale-105" data-category="video" data-aos="fade-up" data-aos-delay="400">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl flex items-center justify-center text-2xl">
+                                <i class="fab fa-youtube text-white"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-white">YouTube Premium</h3>
+                                <span class="text-red-400 text-sm font-semibold">Ad-Free</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>Ad-Free Videos
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>Background Play
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>YouTube Music
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-red-400 mr-3"></i>Offline Downloads
+                        </li>
+                    </ul>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-bold text-white">$7.99</span>
+                        <span class="text-white/80">/mo</span>
+                    </div>
+                    <button class="buy-btn w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform group-hover:scale-105 shadow-xl" data-service="YouTube Premium">
+                        <i class="fas fa-shopping-cart mr-2"></i>Buy Now
+                    </button>
+                </div>
+
+                <div class="product-card group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:transform hover:scale-105" data-category="editing" data-aos="fade-up" data-aos-delay="500">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl">
+                                <i class="fas fa-palette text-white"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-white">Canva Pro</h3>
+                                <span class="text-blue-400 text-sm font-semibold">Design Pro</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-blue-400 mr-3"></i>Premium Templates
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-blue-400 mr-3"></i>Brand Kit
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-blue-400 mr-3"></i>Background Remover
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-blue-400 mr-3"></i>Magic Resize
+                        </li>
+                    </ul>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-bold text-white">$5.99</span>
+                        <span class="text-white/80">/mo</span>
+                    </div>
+                    <button class="buy-btn w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform group-hover:scale-105 shadow-xl" data-service="Canva Pro">
+                        <i class="fas fa-shopping-cart mr-2"></i>Buy Now
+                    </button>
+                </div>
+
+                <div class="product-card group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 hover:transform hover:scale-105" data-category="others" data-aos="fade-up" data-aos-delay="600">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl flex items-center justify-center text-2xl">
+                                <i class="fas fa-bezier-curve text-white"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-2xl font-bold text-white">Adobe Creative</h3>
+                                <span class="text-orange-400 text-sm font-semibold">Full Suite</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-orange-400 mr-3"></i>All Adobe Apps
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-orange-400 mr-3"></i>Cloud Storage
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-orange-400 mr-3"></i>Premium Fonts
+                        </li>
+                        <li class="flex items-center text-white/90">
+                            <i class="fas fa-check text-orange-400 mr-3"></i>Stock Photos
+                        </li>
+                    </ul>
+                    <div class="text-center mb-6">
+                        <span class="text-4xl font-bold text-white">$19.99</span>
+                        <span class="text-white/80">/mo</span>
+                    </div>
+                    <button class="buy-btn w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-4 rounded-2xl transition-all duration-300 transform group-hover:scale-105 shadow-xl" data-service="Adobe Creative">
+                        <i class="fas fa-shopping-cart mr-2"></i>Buy Now
+                    </button>
+                </div>
             </div>
-            <div class="product-card">
-                <img src="https://images.unsplash.com/photo-1512499617640-c2f999098c01?auto=format&fit=crop&w=400&q=80" alt="Product 4">
-                <h2>Fitness Tracker</h2>
-                <p class="price">$29.99</p>
-                <button class="add-to-cart">Add to Cart</button>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="testimonials">
+            <h2>What Our Customers Say</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial">
+                    <p>"Got my Spotify Premium instantly! Amazing service and great prices."</p>
+                    <span>- Sarah M. ⭐⭐⭐⭐⭐</span>
+                </div>
+                <div class="testimonial">
+                    <p>"Netflix account works perfectly. Fast delivery and excellent support."</p>
+                    <span>- John D. ⭐⭐⭐⭐⭐</span>
+                </div>
+                <div class="testimonial">
+                    <p>"Best prices for premium services. Highly recommended!"</p>
+                    <span>- Maria L. ⭐⭐⭐⭐⭐</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq" id="faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">How fast is delivery?</div>
+                    <div class="faq-answer">Most accounts are delivered within 24 hours, often much faster!</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Are the accounts safe?</div>
+                    <div class="faq-answer">Yes! All accounts are legitimate and come with our guarantee.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">What if something goes wrong?</div>
+                    <div class="faq-answer">We offer 24/7 support and will replace any non-working accounts immediately.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section class="newsletter">
+            <h2>Get Exclusive Deals</h2>
+            <p>Be the first to know about flash sales and new services</p>
+            <div class="newsletter-form">
+                <input type="email" placeholder="Enter your email">
+                <button>Subscribe</button>
             </div>
         </section>
     </main>
+
+    <!-- Floating Cart -->
+    <div class="floating-cart" id="floating-cart">
+        <span>🛒</span>
+        <span id="float-cart-count">0</span>
+    </div>
+
+    <!-- Social Proof Popup -->
+    <div class="social-proof" id="social-proof">
+        <span id="proof-text">John from Singapore just purchased CapCut Premium</span>
+    </div>
+
     <footer>
-        <p>&copy; 2025 MyShop. All rights reserved.</p>
+        <p>&copy; 2025 PremiumHub. All rights reserved. | Secure • Fast • Trusted</p>
     </footer>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
