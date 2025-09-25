@@ -109,88 +109,311 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .subject-header {
-            background: var(--bg-secondary);
-            padding: 2rem;
+                .subject-header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .subject-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--primary-color));
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .subject-header-content {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            gap: 2.5rem;
         }
         
         .subject-icon-large {
-            background: var(--primary);
-            width: 80px;
-            height: 80px;
-            border-radius: 16px;
+            font-size: 5rem;
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 2.5rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(59, 130, 246, 0.08));
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+        }
+        
+        .subject-info {
+            flex: 1;
+        }
+        
+        .subject-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subject-description {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .subject-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .subject-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
         }
         
         .subject-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
         }
         
         .section-card {
             background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 2rem;
-            box-shadow: 0 2px 4px var(--shadow);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
         
         .section-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+        }
+        
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
         }
         
         .section-title {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            color: var(--text);
-            font-size: 1.25rem;
-            font-weight: 600;
+            gap: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .section-title i {
+            font-size: 1.5rem;
+            padding: 8px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 8px;
         }
         
         .file-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            background: var(--bg);
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .file-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-color);
+        }
+        
+        .file-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            min-width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+        
+        .file-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
         
         .flashcard-item {
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+        
+        .flashcard-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flashcard-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .flashcard-question {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .flashcard-answer {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
             padding: 1rem;
-            border: 1px solid var(--border);
+            background: var(--bg-secondary);
             border-radius: 8px;
-            margin-bottom: 0.5rem;
-            background: var(--bg);
+            border-left: 4px solid var(--primary-color);
         }
         
         .task-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .task-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .task-checkbox:checked {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+        
+        .task-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.2rem;
             margin-bottom: 0.5rem;
-            background: var(--bg);
+            color: var(--text-primary);
+        }
+        
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.6;
         }
         
         .btn-small {
@@ -237,27 +460,91 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
         }
         
         @media (max-width: 768px) {
-            .subject-content {
-                grid-template-columns: 1fr;
-                padding: 1rem;
-                gap: 1.5rem;
+            .subject-header {
+                padding: 2rem 1.5rem;
+                margin-bottom: 2rem;
             }
             
-            .subject-header {
+            .subject-header-content {
                 flex-direction: column;
+                text-align: center;
+                gap: 2rem;
+            }
+            
+            .subject-title {
+                font-size: 2.5rem;
+            }
+            
+            .subject-icon-large {
+                width: 100px;
+                height: 100px;
+                font-size: 4rem;
+            }
+            
+            .subject-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .subject-actions {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .subject-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .section-card {
+                padding: 1.5rem;
+            }
+            
+            .file-item,
+            .flashcard-item,
+            .task-item {
+                padding: 1.25rem;
+            }
+            
+            .file-icon {
+                font-size: 1.5rem;
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .subject-header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .subject-title {
+                font-size: 2rem;
+            }
+            
+            .section-card {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.2rem;
+            }
+            
+            .file-item,
+            .flashcard-item,
+            .task-item {
+                padding: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
                 gap: 1rem;
             }
             
-            .subject-header > div:last-child {
-                display: flex;
-                gap: 0.5rem;
+            .file-info,
+            .task-content {
                 width: 100%;
-            }
-            
-            .subject-header > div:last-child button {
-                flex: 1;
-                padding: 0.5rem 1rem !important;
-                font-size: 0.85rem;
             }
         }
     </style>
@@ -285,24 +572,40 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
 
     <!-- Subject Header -->
     <div class="subject-header">
-        <div class="subject-icon-large">
-            <i class="<?php echo $subject['icon']; ?>"></i>
-        </div>
-        <div style="flex: 1;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--text);">
-                <?php echo htmlspecialchars($subject['name']); ?>
-            </h1>
-            <p style="color: var(--text-secondary); font-size: 1.1rem;">
-                <?php echo htmlspecialchars($subject['description'] ?: 'Organize your study materials and track your progress'); ?>
-            </p>
-        </div>
-        <div style="display: flex; gap: 1rem; align-items: flex-start;">
-            <button onclick="editSubject()" class="btn-secondary btn-small">
-                <i class="fas fa-edit"></i> Edit Subject
-            </button>
-            <button onclick="deleteSubject()" class="btn-danger btn-small">
-                <i class="fas fa-trash"></i> Delete Subject
-            </button>
+        <div class="subject-header-content">
+            <div class="subject-icon-large">
+                <i class="<?php echo $subject['icon']; ?>"></i>
+            </div>
+            <div class="subject-info">
+                <h1 class="subject-title">
+                    <?php echo htmlspecialchars($subject['name']); ?>
+                </h1>
+                <p class="subject-description">
+                    <?php echo htmlspecialchars($subject['description'] ?: 'Organize your study materials and track your progress'); ?>
+                </p>
+                <div class="subject-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-file"></i>
+                        <span><?php echo count($files); ?> Files</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-layer-group"></i>
+                        <span><?php echo count($flashcards); ?> Flashcards</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-tasks"></i>
+                        <span><?php echo count($tasks); ?> Tasks</span>
+                    </div>
+                </div>
+            </div>
+            <div class="subject-actions">
+                <button onclick="editSubject()" class="btn-secondary btn-small">
+                    <i class="fas fa-edit"></i> Edit Subject
+                </button>
+                <button onclick="deleteSubject()" class="btn-danger btn-small">
+                    <i class="fas fa-trash"></i> Delete Subject
+                </button>
+            </div>
         </div>
     </div>
 
@@ -323,25 +626,40 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             
             <div id="filesList">
                 <?php if (empty($files)): ?>
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        No files uploaded yet. Click "Upload" to add your study materials.
-                    </p>
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No Files Yet</h3>
+                        <p>Upload your study materials, notes, and resources to get started.<br>
+                        Supported formats: PDF, DOC, TXT, PPT, and more.</p>
+                    </div>
                 <?php else: ?>
                     <?php foreach ($files as $file): ?>
                         <div class="file-item">
-                            <i class="fas fa-file" style="color: var(--primary);"></i>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 500; color: var(--text);">
+                            <div class="file-icon">
+                                <i class="fas fa-file-<?php 
+                                    $ext = strtolower(pathinfo($file['original_filename'], PATHINFO_EXTENSION));
+                                    echo ($ext === 'pdf') ? 'pdf' : (in_array($ext, ['doc', 'docx']) ? 'word' : (in_array($ext, ['ppt', 'pptx']) ? 'powerpoint' : 'alt'));
+                                ?>"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">
                                     <?php echo htmlspecialchars($file['original_filename']); ?>
                                 </div>
-                                <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                                <div class="file-meta">
                                     <?php echo formatFileSize($file['file_size']); ?> • 
-                                    <?php echo date('M j, Y', strtotime($file['created_at'])); ?>
+                                    Uploaded <?php echo date('M j, Y', strtotime($file['created_at'])); ?>
                                 </div>
                             </div>
-                            <a href="<?php echo $file['file_path']; ?>" target="_blank" class="btn-secondary btn-small">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="<?php echo $file['file_path']; ?>" target="_blank" class="btn-secondary btn-small">
+                                    <i class="fas fa-external-link-alt"></i> Open
+                                </a>
+                                <button onclick="deleteFile(<?php echo $file['id']; ?>)" 
+                                        class="btn-danger btn-small"
+                                        style="padding: 0.5rem 0.75rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -362,18 +680,32 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             
             <div id="flashcardsList">
                 <?php if (empty($flashcards)): ?>
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        No flashcards yet. Create your first flashcard to start studying!
-                    </p>
+                    <div class="empty-state">
+                        <i class="fas fa-layer-group"></i>
+                        <h3>No Flashcards Yet</h3>
+                        <p>Create flashcards to help memorize key concepts and facts.<br>
+                        Perfect for vocabulary, formulas, and quick reviews.</p>
+                    </div>
                 <?php else: ?>
                     <?php foreach ($flashcards as $card): ?>
                         <div class="flashcard-item">
-                            <div style="font-weight: 500; color: var(--text); margin-bottom: 0.5rem;">
-                                <?php echo htmlspecialchars(substr($card['question'], 0, 100)) . (strlen($card['question']) > 100 ? '...' : ''); ?>
+                            <div class="flashcard-question">
+                                <?php echo htmlspecialchars($card['question']); ?>
                             </div>
-                            <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                                Difficulty: <?php echo ucfirst($card['difficulty']); ?> • 
-                                Reviewed <?php echo $card['times_reviewed']; ?> times
+                            <div class="flashcard-answer">
+                                <?php echo htmlspecialchars($card['answer']); ?>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; color: var(--text-secondary); font-size: 0.9rem;">
+                                <div>
+                                    <i class="fas fa-chart-line"></i>
+                                    Difficulty: <span style="color: var(--primary-color); font-weight: 600;"><?php echo ucfirst($card['difficulty']); ?></span>
+                                    • Reviewed <?php echo $card['times_reviewed']; ?> times
+                                </div>
+                                <button onclick="deleteFlashcard(<?php echo $card['id']; ?>)" 
+                                        class="btn-danger btn-small"
+                                        style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -395,20 +727,34 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             
             <div id="tasksList">
                 <?php if (empty($tasks)): ?>
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        No tasks yet. Add some study goals to stay organized!
-                    </p>
+                    <div class="empty-state">
+                        <i class="fas fa-tasks"></i>
+                        <h3>No Tasks Yet</h3>
+                        <p>Set study goals and track your progress.<br>
+                        Break down complex topics into manageable tasks.</p>
+                    </div>
                 <?php else: ?>
                     <?php foreach ($tasks as $task): ?>
                         <div class="task-item">
-                            <input type="checkbox" <?php echo $task['completed'] ? 'checked' : ''; ?> 
+                            <input type="checkbox" class="task-checkbox" 
+                                   <?php echo $task['completed'] ? 'checked' : ''; ?> 
                                    onchange="toggleTask(<?php echo $task['id']; ?>)">
-                            <span style="flex: 1; color: var(--text); <?php echo $task['completed'] ? 'text-decoration: line-through; opacity: 0.6;' : ''; ?>">
-                                <?php echo htmlspecialchars($task['title']); ?>
-                            </span>
-                            <span style="font-size: 0.875rem; color: var(--text-secondary);">
-                                <?php echo date('M j', strtotime($task['created_at'])); ?>
-                            </span>
+                            <div class="task-content">
+                                <div class="task-title" style="<?php echo $task['completed'] ? 'text-decoration: line-through; opacity: 0.6;' : ''; ?>">
+                                    <?php echo htmlspecialchars($task['title']); ?>
+                                </div>
+                                <div class="task-date">
+                                    Created <?php echo date('M j, Y', strtotime($task['created_at'])); ?>
+                                    <?php if ($task['completed']): ?>
+                                        • <i class="fas fa-check" style="color: var(--success);"></i> Completed
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <button onclick="deleteTask(<?php echo $task['id']; ?>)" 
+                                    class="btn-danger btn-small"
+                                    style="padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -425,10 +771,12 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             </div>
             
             <div style="text-align: center;">
-                <div style="font-size: 3rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem;" id="timerDisplay">
-                    25:00
+                <div style="background: var(--bg-primary); border-radius: 50%; width: 200px; height: 200px; margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 4px solid var(--primary-color);">
+                    <div style="font-size: 3rem; font-weight: 700; color: var(--primary-color);" id="timerDisplay">
+                        25:00
+                    </div>
                 </div>
-                <div style="display: flex; gap: 1rem; justify-content: center;">
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem;">
                     <button class="btn-primary" onclick="startTimer()">
                         <i class="fas fa-play"></i> Start
                     </button>
@@ -439,6 +787,10 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
                         <i class="fas fa-refresh"></i> Reset
                     </button>
                 </div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                    <i class="fas fa-info-circle"></i>
+                    Focus for 25 minutes, then take a 5-minute break
+                </p>
             </div>
         </div>
     </div>
@@ -824,6 +1176,72 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({type: 'theme', value: newTheme})
+            });
+        }
+        
+        function deleteFile(fileId) {
+            if (!confirm('Are you sure you want to delete this file?')) return;
+            
+            fetch('../inc/delete_file.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({file_id: fileId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
+            });
+        }
+        
+        function deleteFlashcard(cardId) {
+            if (!confirm('Are you sure you want to delete this flashcard?')) return;
+            
+            fetch('../inc/delete_flashcard.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({flashcard_id: cardId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
+            });
+        }
+        
+        function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            
+            fetch('../inc/delete_task.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({task_id: taskId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
             });
         }
     </script>
