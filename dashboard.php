@@ -606,6 +606,17 @@ try {
     </div>
 
     <script>
+        // Load user wallpaper on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const wallpaper = '<?php echo htmlspecialchars($user['wallpaper'] ?? ''); ?>';
+            if (wallpaper) {
+                document.body.style.backgroundImage = `url('${wallpaper}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+            }
+        });
+
         // Timer functionality
         let timerInterval = null;
         let timeLeft = 25 * 60; // 25 minutes
@@ -750,7 +761,145 @@ try {
         }
 
         function openWallpaperModal() {
-            alert('Wallpaper feature coming soon!');
+            // Create wallpaper modal
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeWallpaperModal(event)">
+                    <div style="background: var(--bg); border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="color: var(--text); margin: 0;">🎨 Wallpapers</h2>
+                            <button onclick="closeWallpaperModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer;">&times;</button>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <input type="file" id="wallpaperInput" accept="image/*" style="display: none;" onchange="uploadWallpaper()">
+                            <button onclick="document.getElementById('wallpaperInput').click()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; width: 100%;">
+                                <i class="fas fa-upload"></i> Upload New Wallpaper
+                            </button>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <button onclick="removeWallpaper()" style="background: var(--error); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; width: 100%;">
+                                <i class="fas fa-trash"></i> Remove Wallpaper
+                            </button>
+                        </div>
+                        
+                        <div id="wallpaperGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                            <div style="text-align: center; color: var(--text-light);">Loading wallpapers...</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.id = 'wallpaperModal';
+            document.body.appendChild(modal);
+            
+            // Load user wallpapers
+            loadWallpapers();
+        }
+        
+        function closeWallpaperModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('wallpaperModal');
+            if (modal) modal.remove();
+        }
+        
+        function loadWallpapers() {
+            fetch('inc/get_wallpapers.php')
+                .then(response => response.json())
+                .then(data => {
+                    const gallery = document.getElementById('wallpaperGallery');
+                    if (data.success && data.wallpapers.length > 0) {
+                        gallery.innerHTML = data.wallpapers.map(wallpaper => `
+                            <div style="position: relative; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid var(--border);" onclick="setWallpaper('${wallpaper.url}')">
+                                <img src="${wallpaper.url}" style="width: 100%; height: 100px; object-fit: cover;">
+                                <div style="position: absolute; top: 4px; right: 4px;">
+                                    <button onclick="event.stopPropagation(); deleteWallpaper(${wallpaper.id})" style="background: rgba(239, 68, 68, 0.8); color: white; border: none; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; font-size: 12px;">×</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        gallery.innerHTML = '<div style="text-align: center; color: var(--text-light); grid-column: 1/-1;">No wallpapers uploaded yet</div>';
+                    }
+                });
+        }
+        
+        function uploadWallpaper() {
+            const input = document.getElementById('wallpaperInput');
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Please choose an image under 5MB.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('wallpaper', file);
+            
+            fetch('inc/upload_wallpaper.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadWallpapers();
+                } else {
+                    alert('Upload failed: ' + data.message);
+                }
+            });
+        }
+        
+        function setWallpaper(url) {
+            document.body.style.backgroundImage = `url('${url}')`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+            
+            // Save preference
+            fetch('inc/set_wallpaper.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({wallpaper: url})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeWallpaperModal();
+                }
+            });
+        }
+        
+        function removeWallpaper() {
+            document.body.style.backgroundImage = '';
+            
+            fetch('inc/set_wallpaper.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({wallpaper: ''})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeWallpaperModal();
+                }
+            });
+        }
+        
+        function deleteWallpaper(id) {
+            if (!confirm('Delete this wallpaper?')) return;
+            
+            fetch('inc/delete_wallpaper.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({wallpaper_id: id})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadWallpapers();
+                }
+            });
         }
 
         function logout() {
