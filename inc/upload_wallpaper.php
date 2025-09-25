@@ -32,7 +32,7 @@ if ($file['size'] > 5 * 1024 * 1024) { // 5MB limit
 
 try {
     // Create wallpaper directory
-    $wallpaper_dir = WALLPAPER_PATH . $user_id . '/';
+    $wallpaper_dir = WALLPAPER_DIR . $user_id . '/';
     if (!file_exists($wallpaper_dir)) {
         mkdir($wallpaper_dir, 0755, true);
     }

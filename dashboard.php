@@ -1,24 +1,69 @@
 <?php
 session_start();
+require_once 'inc/config.php';
+require_once 'inc/functions.php';
 
-// Mock user data for demo (replace with actual database logic)
-$user = [
-    'name' => 'Demo User',
-    'picture' => 'https://via.placeholder.com/40',
-    'theme' => 'light',
-    'wallpaper' => ''
-];
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
 
-$subjects = [
-    ['name' => 'Computing', 'icon' => 'fas fa-laptop-code', 'color' => '#3b82f6', 'description' => 'Programming and computer science'],
-    ['name' => 'History & Social Studies', 'icon' => 'fas fa-landmark', 'color' => '#f59e0b', 'description' => 'Historical events and society'],
-    ['name' => 'Chemistry & Physics', 'icon' => 'fas fa-atom', 'color' => '#10b981', 'description' => 'Sciences and experiments'],
-    ['name' => 'English', 'icon' => 'fas fa-book-open', 'color' => '#ef4444', 'description' => 'Language and literature'],
-    ['name' => 'Chinese', 'icon' => 'fas fa-language', 'color' => '#f97316', 'description' => 'Chinese language studies'],
-    ['name' => 'Math', 'icon' => 'fas fa-calculator', 'color' => '#8b5cf6', 'description' => 'Mathematics and algebra'],
-    ['name' => 'A-Math', 'icon' => 'fas fa-square-root-alt', 'color' => '#ec4899', 'description' => 'Advanced mathematics'],
-    ['name' => 'Electronics', 'icon' => 'fas fa-microchip', 'color' => '#06b6d4', 'description' => 'Electronic circuits and components']
-];
+// Check session timeout
+if (!checkSessionTimeout()) {
+    header('Location: index.php');
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+try {
+    // Get user data
+    $user = getUserById($user_id);
+    if (!$user) {
+        session_destroy();
+        header('Location: index.php');
+        exit;
+    }
+    
+    // Get user's subjects
+    $subjects = getSubjectsForUser($user_id);
+    
+    // If no subjects found, initialize defaults
+    if (empty($subjects)) {
+        initializeDefaultSubjects($user_id);
+        $subjects = getSubjectsForUser($user_id);
+    }
+    
+    // Get user's tasks
+    $tasks = getTasksForUser($user_id);
+    
+    // Get user's quick notes
+    $quick_notes = getNotesForUser($user_id);
+    
+} catch (Exception $e) {
+    error_log("Dashboard error: " . $e->getMessage());
+    // Fall back to demo data
+    $user = [
+        'name' => 'Demo User',
+        'picture' => 'https://via.placeholder.com/40',
+        'theme' => 'light',
+        'wallpaper' => ''
+    ];
+    
+    $subjects = [
+        ['name' => 'Computing', 'icon' => 'fas fa-laptop-code', 'color' => '#3b82f6', 'description' => 'Programming and computer science'],
+        ['name' => 'History & Social Studies', 'icon' => 'fas fa-landmark', 'color' => '#f59e0b', 'description' => 'Historical events and society'],
+        ['name' => 'Chemistry & Physics', 'icon' => 'fas fa-atom', 'color' => '#10b981', 'description' => 'Sciences and experiments'],
+        ['name' => 'English', 'icon' => 'fas fa-book-open', 'color' => '#ef4444', 'description' => 'Language and literature'],
+        ['name' => 'Chinese', 'icon' => 'fas fa-language', 'color' => '#f97316', 'description' => 'Chinese language studies'],
+        ['name' => 'Math', 'icon' => 'fas fa-calculator', 'color' => '#8b5cf6', 'description' => 'Mathematics and algebra'],
+        ['name' => 'A-Math', 'icon' => 'fas fa-square-root-alt', 'color' => '#ec4899', 'description' => 'Advanced mathematics'],
+        ['name' => 'Electronics', 'icon' => 'fas fa-microchip', 'color' => '#06b6d4', 'description' => 'Electronic circuits and components']
+    ];
+    $tasks = [];
+    $quick_notes = null;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="<?php echo $user['theme']; ?>">

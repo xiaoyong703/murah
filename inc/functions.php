@@ -79,7 +79,7 @@ function sanitizeFilename($filename) {
 }
 
 function createUserDirectory($user_id, $subdirectory = '') {
-    $path = UPLOAD_PATH . $user_id . '/' . $subdirectory;
+    $path = UPLOAD_DIR . $user_id . '/' . $subdirectory;
     if (!file_exists($path)) {
         mkdir($path, 0755, true);
     }
@@ -87,10 +87,51 @@ function createUserDirectory($user_id, $subdirectory = '') {
 }
 
 function checkSessionTimeout() {
-    if (isset($_SESSION['login_time']) && (time() - $_SESSION['login_time']) > SESSION_TIMEOUT) {
+    if (isset($_SESSION['login_time']) && (time() - $_SESSION['login_time']) > 7200) { // 2 hours
         session_destroy();
         return false;
     }
     return true;
+}
+
+function getUserWallpapers($user_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM wallpapers WHERE user_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$user_id]);
+    return $stmt->fetchAll();
+}
+
+function getFlashcardsBySubject($user_id, $subject_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM flashcards WHERE user_id = ? AND subject_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$user_id, $subject_id]);
+    return $stmt->fetchAll();
+}
+
+function getFilesBySubject($user_id, $subject_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM files WHERE user_id = ? AND subject_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$user_id, $subject_id]);
+    return $stmt->fetchAll();
+}
+
+function validateFileUpload($file) {
+    $errors = [];
+    
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = 'File upload error.';
+        return $errors;
+    }
+    
+    if ($file['size'] > MAX_FILE_SIZE) {
+        $errors[] = 'File size exceeds limit.';
+    }
+    
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($extension, ALLOWED_FILE_TYPES)) {
+        $errors[] = 'File type not allowed.';
+    }
+    
+    return $errors;
 }
 ?>

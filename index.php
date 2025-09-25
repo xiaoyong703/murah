@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'inc/config.php';
 
 // Redirect to dashboard if already logged in
 if (isset($_SESSION['user_id'])) {
@@ -27,7 +28,7 @@ if (isset($_SESSION['user_id'])) {
             <p class="login-subtitle">Your personal study hub for academic success</p>
             
             <div id="g_id_onload"
-                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                 data-client_id="<?php echo defined('GOOGLE_CLIENT_ID') ? GOOGLE_CLIENT_ID : 'YOUR_GOOGLE_CLIENT_ID_HERE'; ?>"
                  data-callback="handleCredentialResponse"
                  data-auto_prompt="false">
             </div>
