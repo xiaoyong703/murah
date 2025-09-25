@@ -1,208 +1,271 @@
-document.addEventListener('DOMContentLoaded', function() {
-    let cartCount = 0;
-    const cartCountElem = document.getElementById('cart-count');
-    const floatCartCount = document.getElementById('float-cart-count');
-    const buyButtons = document.querySelectorAll('.buy-btn');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const productCards = document.querySelectorAll('.product-card');
-    const faqItems = document.querySelectorAll('.faq-item');
-    const socialProof = document.getElementById('social-proof');
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
+// Revision HQ Main JavaScript
 
-    // Dark/Light Mode Toggle
-    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+// Theme Toggle
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
     
-    function updateTheme() {
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-            themeIcon.className = 'fas fa-sun text-white';
-            document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
-        } else {
-            document.body.classList.remove('dark-mode');
-            themeIcon.className = 'fas fa-moon text-white';
-            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-        }
-        localStorage.setItem('darkMode', isDarkMode);
+    const themeIcon = document.querySelector('.theme-switcher i');
+    if (themeIcon) {
+        themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
     }
     
-    themeToggle.addEventListener('click', function() {
-        isDarkMode = !isDarkMode;
-        updateTheme();
-    });
-    
-    // Initialize theme
-    updateTheme();
+    localStorage.setItem('theme', newTheme);
+}
 
-    // Countdown Timer
-    function startCountdown() {
-        const countdownElem = document.getElementById('countdown');
-        let timeLeft = 24 * 60 * 60 - 1; // 23:59:59
+// Pomodoro Timer
+let timerInterval = null;
+let timeLeft = 25 * 60;
+let isRunning = false;
 
-        setInterval(() => {
-            const hours = Math.floor(timeLeft / 3600);
-            const minutes = Math.floor((timeLeft % 3600) / 60);
-            const seconds = timeLeft % 60;
-            
-            countdownElem.textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            timeLeft--;
-            if (timeLeft < 0) timeLeft = 24 * 60 * 60 - 1;
-        }, 1000);
+function updateTimerDisplay() {
+    const timerDisplay = document.getElementById('timerDisplay');
+    if (timerDisplay) {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
+}
 
-    // Buy Button Functionality
-    buyButtons.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            cartCount++;
-            cartCountElem.textContent = cartCount;
-            floatCartCount.textContent = cartCount;
-            
-            const service = btn.getAttribute('data-service');
-            btn.textContent = '✓ Added to Cart';
-            btn.style.background = '#27ae60';
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                btn.textContent = 'Buy Now';
-                btn.style.background = '';
-                btn.disabled = false;
-            }, 2000);
-
-            // Show social proof
-            showSocialProof(service);
-        });
-    });
-
-    // Product Filtering
-    filterButtons.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            // Remove active class from all buttons
-            filterButtons.forEach(b => b.classList.remove('active'));
-            // Add active class to clicked button
-            btn.classList.add('active');
-            
-            const filter = btn.getAttribute('data-filter');
-            
-            productCards.forEach(function(card) {
-                if (filter === 'all' || card.getAttribute('data-category') === filter) {
-                    card.style.display = 'block';
-                    card.style.animation = 'fadeIn 0.5s ease';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-    });
-
-    // FAQ Accordion
-    faqItems.forEach(function(item) {
-        const question = item.querySelector('.faq-question');
-        question.addEventListener('click', function() {
-            const isActive = item.classList.contains('active');
-            
-            // Close all FAQ items
-            faqItems.forEach(faq => faq.classList.remove('active'));
-            
-            // Open clicked item if it wasn't active
-            if (!isActive) {
-                item.classList.add('active');
-            }
-        });
-    });
-
-    // Social Proof Popup
-    const proofMessages = [
-        "Sarah from New York just purchased Spotify Premium",
-        "John from Singapore just purchased CapCut Premium",
-        "Maria from London just purchased Netflix Premium",
-        "Alex from Tokyo just purchased YouTube Premium",
-        "Emma from Paris just purchased Canva Pro"
-    ];
-
-    function showSocialProof(service = null) {
-        const message = service ? 
-            `Someone just purchased ${service}` : 
-            proofMessages[Math.floor(Math.random() * proofMessages.length)];
+function startTimer() {
+    if (isRunning) return;
+    isRunning = true;
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) startBtn.textContent = 'Running...';
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
         
-        document.getElementById('proof-text').textContent = message;
-        socialProof.classList.add('show');
-        
-        setTimeout(() => {
-            socialProof.classList.remove('show');
-        }, 4000);
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            if (startBtn) startBtn.textContent = 'Start';
+            alert('Pomodoro Complete! Time for a break!');
+        }
+    }, 1000);
+}
+
+function pauseTimer() {
+    if (!isRunning) return;
+    clearInterval(timerInterval);
+    isRunning = false;
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) startBtn.textContent = 'Start';
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    const activePreset = document.querySelector('.timer-preset.active');
+    if (activePreset) {
+        timeLeft = parseInt(activePreset.dataset.minutes) * 60;
     }
+    updateTimerDisplay();
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) startBtn.textContent = 'Start';
+}
 
-    // Show social proof periodically
-    setInterval(() => {
-        if (!socialProof.classList.contains('show')) {
-            showSocialProof();
-        }
-    }, 15000);
-
-    // Newsletter Subscription
-    const newsletterBtn = document.querySelector('.newsletter-form button');
-    const newsletterInput = document.querySelector('.newsletter-form input');
+// Todo Functions
+function addTodo() {
+    const input = document.getElementById('todoInput');
+    const todoList = document.getElementById('todoList');
     
-    newsletterBtn.addEventListener('click', function() {
-        const email = newsletterInput.value;
-        if (email && email.includes('@')) {
-            newsletterBtn.textContent = '✓ Subscribed!';
-            newsletterBtn.style.background = '#27ae60';
-            newsletterInput.value = '';
-            
-            setTimeout(() => {
-                newsletterBtn.textContent = 'Subscribe';
-                newsletterBtn.style.background = '';
-            }, 3000);
-        } else {
-            alert('Please enter a valid email address');
-        }
-    });
+    if (!input || !todoList) return;
+    
+    const text = input.value.trim();
+    if (!text) return;
 
-    // Floating Cart Click
-    document.getElementById('floating-cart').addEventListener('click', function() {
-        if (cartCount > 0) {
-            alert(`You have ${cartCount} items in your cart!\nProceeding to checkout...`);
-        } else {
-            alert('Your cart is empty. Add some premium services!');
-        }
-    });
-
-    // CTA Button Scroll
-    document.querySelector('.cta-btn').addEventListener('click', function() {
-        document.querySelector('.products-section').scrollIntoView({
-            behavior: 'smooth'
-        });
-    });
-
-    // Smooth scrolling for navigation
-    document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-
-    // Add CSS for fade in animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    const todoItem = document.createElement('div');
+    todoItem.className = 'todo-item';
+    todoItem.innerHTML = `
+        <input type="checkbox" class="todo-checkbox" onchange="toggleCompleted(this)">
+        <span class="todo-text">${text}</span>
+        <button class="todo-delete" onclick="deleteTask(this)">×</button>
     `;
-    document.head.appendChild(style);
+    todoList.appendChild(todoItem);
+    input.value = '';
+}
 
-    // Start countdown timer
-    startCountdown();
+function deleteTask(button) {
+    button.parentElement.remove();
+}
 
-    // Show initial social proof after 3 seconds
-    setTimeout(() => {
-        showSocialProof();
-    }, 3000);
+function toggleCompleted(checkbox) {
+    const todoItem = checkbox.parentElement;
+    todoItem.classList.toggle('completed', checkbox.checked);
+}
+
+// Calculator
+let calcExpression = '';
+
+function appendToCalc(value) {
+    const calcDisplay = document.getElementById('calcDisplay');
+    if (!calcDisplay) return;
+    calcExpression += value;
+    calcDisplay.textContent = calcExpression || '0';
+}
+
+function clearCalc() {
+    const calcDisplay = document.getElementById('calcDisplay');
+    if (!calcDisplay) return;
+    calcExpression = '';
+    calcDisplay.textContent = '0';
+}
+
+function deleteLast() {
+    const calcDisplay = document.getElementById('calcDisplay');
+    if (!calcDisplay) return;
+    calcExpression = calcExpression.slice(0, -1);
+    calcDisplay.textContent = calcExpression || '0';
+}
+
+function calculate() {
+    const calcDisplay = document.getElementById('calcDisplay');
+    if (!calcDisplay) return;
+    
+    try {
+        const result = eval(calcExpression.replace(/×/g, '*').replace(/÷/g, '/'));
+        calcDisplay.textContent = result;
+        calcExpression = result.toString();
+    } catch (error) {
+        calcDisplay.textContent = 'Error';
+        calcExpression = '';
+    }
+}
+
+// Unit Converter
+const conversions = {
+    length: { m: 1, cm: 100, ft: 3.28084, in: 39.3701 },
+    weight: { kg: 1, g: 1000, lb: 2.20462, oz: 35.274 }
+};
+
+function updateUnitOptions() {
+    const type = document.getElementById('unitType');
+    const fromUnit = document.getElementById('fromUnit');
+    const toUnit = document.getElementById('toUnit');
+    
+    if (!type || !fromUnit || !toUnit) return;
+    
+    let options = '';
+    if (type.value === 'length') {
+        options = '<option value="m">Meters</option><option value="cm">Centimeters</option><option value="ft">Feet</option><option value="in">Inches</option>';
+    } else if (type.value === 'weight') {
+        options = '<option value="kg">Kilograms</option><option value="g">Grams</option><option value="lb">Pounds</option><option value="oz">Ounces</option>';
+    }
+    
+    fromUnit.innerHTML = options;
+    toUnit.innerHTML = options;
+}
+
+function convertUnits() {
+    const fromValue = document.getElementById('fromValue');
+    const fromUnit = document.getElementById('fromUnit');
+    const toUnit = document.getElementById('toUnit');
+    const toValue = document.getElementById('toValue');
+    const unitType = document.getElementById('unitType');
+    
+    if (!fromValue || !fromUnit || !toUnit || !toValue || !unitType) return;
+    
+    const value = parseFloat(fromValue.value);
+    if (isNaN(value)) return;
+    
+    const type = unitType.value;
+    const fromFactor = conversions[type][fromUnit.value];
+    const toFactor = conversions[type][toUnit.value];
+    const result = value / fromFactor * toFactor;
+    
+    toValue.value = result.toFixed(6);
+}
+
+// Word Counter
+function updateWordCount() {
+    const textElement = document.getElementById('wordCountText');
+    const wordCountElement = document.getElementById('wordCount');
+    const charCountElement = document.getElementById('charCount');
+    
+    if (!textElement || !wordCountElement || !charCountElement) return;
+    
+    const text = textElement.value;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const chars = text.length;
+    
+    wordCountElement.textContent = words;
+    charCountElement.textContent = chars;
+}
+
+// QR Generator
+function generateQR() {
+    const text = document.getElementById('qrText').value.trim();
+    const qrResult = document.getElementById('qrResult');
+    
+    if (!text || !qrResult) return;
+    
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+    qrResult.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="max-width: 100%;">`;
+}
+
+// User Menu
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Wallpaper Modal
+function openWallpaperModal() {
+    alert('Wallpaper feature - Coming soon!');
+}
+
+// Google Sign-In
+function handleCredentialResponse(response) {
+    console.log('Login successful');
+    window.location.href = 'dashboard.html';
+}
+
+// Clipboard
+function copyToClipboard(element) {
+    const text = element.textContent;
+    navigator.clipboard.writeText(text);
+    element.style.background = 'var(--success)';
+    setTimeout(() => element.style.background = '', 500);
+}
+
+function clearClipboard() {
+    const clipboardList = document.getElementById('clipboardList');
+    if (clipboardList) {
+        clipboardList.innerHTML = '<div class="clipboard-item">No items</div>';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    updateTimerDisplay();
+    updateUnitOptions();
+    
+    // Timer presets
+    document.querySelectorAll('.timer-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            document.querySelectorAll('.timer-preset').forEach(p => p.classList.remove('active'));
+            preset.classList.add('active');
+            if (!isRunning) {
+                timeLeft = parseInt(preset.dataset.minutes) * 60;
+                updateTimerDisplay();
+            }
+        });
+    });
+    
+    // Todo input enter key
+    const todoInput = document.getElementById('todoInput');
+    if (todoInput) {
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTodo();
+        });
+    }
 });
