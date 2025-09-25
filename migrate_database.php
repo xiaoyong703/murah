@@ -30,8 +30,13 @@ try {
         echo "✅ Added foreign key constraint<br>";
         
         // Remove unique constraint on name (if exists) and add unique constraint for user_id + name
-        $pdo->exec("ALTER TABLE subjects DROP INDEX name");
-        echo "✅ Removed global unique constraint on name<br>";
+        $stmt = $pdo->query("SHOW INDEX FROM subjects WHERE Key_name = 'name'");
+        if ($stmt->fetch()) {
+            $pdo->exec("ALTER TABLE subjects DROP INDEX name");
+            echo "✅ Removed global unique constraint on name<br>";
+        } else {
+            echo "ℹ️ No 'name' index found to remove<br>";
+        }
         
         $pdo->exec("ALTER TABLE subjects ADD UNIQUE KEY unique_user_subject (user_id, name)");
         echo "✅ Added user-specific unique constraint<br>";

@@ -1,11 +1,9 @@
 <?php
 session_start();
-require_once 'config.php';
-require_once 'functions.php';
+require_once 'inc/config.php';
 
 header('Content-Type: application/json');
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Not logged in']);
     exit;
@@ -30,13 +28,12 @@ $description = trim($input['description'] ?? '');
 $icon = trim($input['icon'] ?? 'fas fa-book');
 $user_id = $_SESSION['user_id'];
 
-// Validate name length
+// Validate inputs
 if (strlen($name) > 100) {
     echo json_encode(['success' => false, 'message' => 'Subject name too long (max 100 characters)']);
     exit;
 }
 
-// Validate description length
 if (strlen($description) > 255) {
     echo json_encode(['success' => false, 'message' => 'Description too long (max 255 characters)']);
     exit;
@@ -44,7 +41,7 @@ if (strlen($description) > 255) {
 
 // Validate icon format
 if (!preg_match('/^(fas|far|fab) fa-[\w-]+$/', $icon)) {
-    $icon = 'fas fa-book'; // Default fallback
+    $icon = 'fas fa-book';
 }
 
 try {
@@ -55,19 +52,21 @@ try {
     $has_user_id = in_array('user_id', $columns);
     $has_updated_at = in_array('updated_at', $columns);
     
-    // If missing user_id column, add it
+    // If missing user_id, we need to update the schema
     if (!$has_user_id) {
+        // Add user_id column
         $pdo->exec("ALTER TABLE subjects ADD COLUMN user_id INT NOT NULL DEFAULT " . intval($user_id));
         
-        // Add foreign key constraint (ignore if fails)
+        // Add foreign key
         try {
             $pdo->exec("ALTER TABLE subjects ADD CONSTRAINT fk_subjects_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE");
         } catch (Exception $e) {
-            // Ignore foreign key errors
+            // Foreign key might already exist or users table issue
         }
         
-        // Remove old unique constraint if exists
+        // Handle unique constraints
         try {
+            // Check what indexes exist
             $stmt = $pdo->query("SHOW INDEX FROM subjects");
             $indexes = $stmt->fetchAll();
             
@@ -78,27 +77,27 @@ try {
                 }
             }
         } catch (Exception $e) {
-            // Ignore index errors
+            // Index might not exist
         }
         
         // Add new unique constraint
         try {
             $pdo->exec("ALTER TABLE subjects ADD UNIQUE KEY unique_user_subject (user_id, name)");
         } catch (Exception $e) {
-            // Ignore if already exists
+            // Constraint might already exist
         }
     }
     
-    // Add updated_at column if missing
+    // Add updated_at if missing
     if (!$has_updated_at) {
         try {
             $pdo->exec("ALTER TABLE subjects ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
         } catch (Exception $e) {
-            // Ignore if already exists
+            // Column might already exist
         }
     }
     
-    // Check for duplicate names
+    // Now check for duplicates
     $stmt = $pdo->prepare("SELECT id FROM subjects WHERE user_id = ? AND name = ?");
     $stmt->execute([$user_id, $name]);
     
@@ -126,21 +125,21 @@ try {
             'subject_id' => $subject_id
         ]);
     } else {
-        throw new Exception('Failed to create subject');
+        echo json_encode(['success' => false, 'message' => 'Failed to create subject']);
     }
     
 } catch (Exception $e) {
     error_log("Error creating subject: " . $e->getMessage());
     
-    // Provide user-friendly error messages
+    // More user-friendly error messages
     $error_message = 'Database error occurred';
     
     if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
         $error_message = 'A subject with this name already exists';
     } elseif (strpos($e->getMessage(), 'foreign key') !== false) {
-        $error_message = 'Database relationship error';
+        $error_message = 'Database relationship error - please contact support';
     } elseif (strpos($e->getMessage(), 'syntax') !== false) {
-        $error_message = 'Database syntax error - please try again';
+        $error_message = 'Database syntax error - schema update needed';
     }
     
     echo json_encode([
