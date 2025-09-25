@@ -244,6 +244,10 @@ try {
             gap: 1rem;
         }
 
+        .subject-card-container {
+            position: relative;
+        }
+
         .subject-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -254,6 +258,7 @@ try {
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: block;
         }
 
         .subject-card::before {
@@ -270,6 +275,44 @@ try {
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
             background: var(--bg);
+        }
+
+        .subject-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .subject-card-container:hover .subject-actions {
+            opacity: 1;
+        }
+
+        .action-btn-small {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .action-btn-small.edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn-small.delete:hover {
+            background: var(--error);
+            color: white;
         }
 
         .subject-header {
@@ -491,20 +534,33 @@ try {
                         <i class="fas fa-book"></i>
                     </div>
                     <h2 class="card-title">My Subjects</h2>
+                    <button onclick="openSubjectModal()" style="background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; margin-left: auto;">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
                 </div>
                 <div class="subjects-grid">
                     <?php foreach ($subjects as $subject): ?>
-                    <a href="subjects/<?php echo strtolower(str_replace([' ', '&'], ['-', ''], $subject['name'])); ?>.php" class="subject-card">
-                        <div class="subject-header">
-                            <div class="subject-icon">
-                                <i class="<?php echo $subject['icon']; ?>"></i>
+                    <div class="subject-card-container">
+                        <a href="subjects/subject.php?id=<?php echo $subject['id']; ?>" class="subject-card">
+                            <div class="subject-header">
+                                <div class="subject-icon">
+                                    <i class="<?php echo $subject['icon']; ?>"></i>
+                                </div>
+                                <div class="subject-info">
+                                    <h3><?php echo htmlspecialchars($subject['name']); ?></h3>
+                                    <p><?php echo htmlspecialchars($subject['description']); ?></p>
+                                </div>
                             </div>
-                            <div class="subject-info">
-                                <h3><?php echo htmlspecialchars($subject['name']); ?></h3>
-                                <p><?php echo htmlspecialchars($subject['description']); ?></p>
-                            </div>
+                        </a>
+                        <div class="subject-actions">
+                            <button onclick="editSubject(<?php echo $subject['id']; ?>, '<?php echo htmlspecialchars($subject['name']); ?>', '<?php echo htmlspecialchars($subject['description']); ?>', '<?php echo $subject['icon']; ?>')" class="action-btn-small edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteSubject(<?php echo $subject['id']; ?>, '<?php echo htmlspecialchars($subject['name']); ?>')" class="action-btn-small delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
-                    </a>
+                    </div>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -906,6 +962,185 @@ try {
             if (confirm('Are you sure you want to logout?')) {
                 window.location.href = 'inc/logout.php';
             }
+        }
+
+        // Subject Management Functions
+        function openSubjectModal(editMode = false, subjectData = null) {
+            const isEdit = editMode && subjectData;
+            const modalTitle = isEdit ? 'Edit Subject' : 'Create New Subject';
+            const submitText = isEdit ? 'Update Subject' : 'Create Subject';
+            
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeSubjectModal(event)">
+                    <div style="background: var(--bg); border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px;" onclick="event.stopPropagation()">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="color: var(--text); margin: 0;">📚 ${modalTitle}</h2>
+                            <button onclick="closeSubjectModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer;">&times;</button>
+                        </div>
+                        
+                        <form onsubmit="submitSubject(event, ${isEdit})">
+                            <input type="hidden" id="subjectId" value="${isEdit ? subjectData.id : ''}">
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Subject Name</label>
+                                <input type="text" id="subjectName" required maxlength="100" 
+                                       value="${isEdit ? subjectData.name : ''}"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); color: var(--text);"
+                                       placeholder="e.g., Advanced Mathematics">
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Description</label>
+                                <textarea id="subjectDescription" maxlength="255" rows="3"
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); color: var(--text); resize: vertical;"
+                                          placeholder="Brief description of this subject...">${isEdit ? subjectData.description : ''}</textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Icon</label>
+                                <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.5rem; max-height: 200px; overflow-y: auto; padding: 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary);">
+                                    ${getIconOptions(isEdit ? subjectData.icon : 'fas fa-book')}
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" onclick="closeSubjectModal()" 
+                                        style="flex: 1; background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        style="flex: 1; background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    ${submitText}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            modal.id = 'subjectModal';
+            document.body.appendChild(modal);
+        }
+
+        function getIconOptions(selectedIcon = 'fas fa-book') {
+            const icons = [
+                'fas fa-book', 'fas fa-calculator', 'fas fa-atom', 'fas fa-laptop-code',
+                'fas fa-language', 'fas fa-landmark', 'fas fa-microscope', 'fas fa-flask',
+                'fas fa-music', 'fas fa-palette', 'fas fa-running', 'fas fa-globe',
+                'fas fa-chart-line', 'fas fa-dna', 'fas fa-brush', 'fas fa-camera',
+                'fas fa-microchip', 'fas fa-rocket', 'fas fa-leaf', 'fas fa-heart',
+                'fas fa-brain', 'fas fa-star', 'fas fa-graduation-cap', 'fas fa-lightbulb',
+                'fas fa-cog', 'fas fa-cube', 'fas fa-fire', 'fas fa-eye',
+                'fas fa-hand-holding-heart', 'fas fa-award', 'fas fa-trophy', 'fas fa-magic'
+            ];
+            
+            return icons.map(icon => `
+                <div onclick="selectIcon('${icon}')" 
+                     style="width: 40px; height: 40px; border: 2px solid ${icon === selectedIcon ? 'var(--primary)' : 'var(--border)'}; 
+                            border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+                            cursor: pointer; transition: all 0.3s ease; background: ${icon === selectedIcon ? 'var(--primary)' : 'var(--bg)'};
+                            color: ${icon === selectedIcon ? 'white' : 'var(--text)'};" 
+                     data-icon="${icon}">
+                    <i class="${icon}"></i>
+                </div>
+            `).join('');
+        }
+
+        function selectIcon(iconClass) {
+            // Remove selection from all icons
+            document.querySelectorAll('[data-icon]').forEach(el => {
+                el.style.borderColor = 'var(--border)';
+                el.style.background = 'var(--bg)';
+                el.style.color = 'var(--text)';
+            });
+            
+            // Select clicked icon
+            const selectedEl = document.querySelector(`[data-icon="${iconClass}"]`);
+            selectedEl.style.borderColor = 'var(--primary)';
+            selectedEl.style.background = 'var(--primary)';
+            selectedEl.style.color = 'white';
+            
+            // Store selection
+            document.getElementById('subjectModal').dataset.selectedIcon = iconClass;
+        }
+
+        function closeSubjectModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('subjectModal');
+            if (modal) modal.remove();
+        }
+
+        function submitSubject(event, isEdit = false) {
+            event.preventDefault();
+            
+            const name = document.getElementById('subjectName').value.trim();
+            const description = document.getElementById('subjectDescription').value.trim();
+            const selectedIcon = document.getElementById('subjectModal').dataset.selectedIcon || 'fas fa-book';
+            const subjectId = document.getElementById('subjectId').value;
+            
+            if (!name) {
+                alert('Please enter a subject name');
+                return;
+            }
+            
+            const data = {
+                name: name,
+                description: description,
+                icon: selectedIcon
+            };
+            
+            if (isEdit) {
+                data.subject_id = subjectId;
+            }
+            
+            const url = isEdit ? 'inc/update_subject.php' : 'inc/create_subject.php';
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeSubjectModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
+            });
+        }
+
+        function editSubject(id, name, description, icon) {
+            openSubjectModal(true, {id, name, description, icon});
+        }
+
+        function deleteSubject(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"? This will also delete all files and data associated with this subject.`)) {
+                return;
+            }
+            
+            fetch('inc/delete_subject.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({subject_id: id})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
+            });
         }
     </script>
 </body>

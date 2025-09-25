@@ -11,11 +11,9 @@ function getUserById($user_id) {
 function getSubjectsForUser($user_id) {
     global $pdo;
     $stmt = $pdo->prepare("
-        SELECT s.*, us.position, us.color 
-        FROM subjects s 
-        JOIN user_subjects us ON s.id = us.subject_id 
-        WHERE us.user_id = ? 
-        ORDER BY us.position
+        SELECT * FROM subjects 
+        WHERE user_id = ? 
+        ORDER BY created_at ASC
     ");
     $stmt->execute([$user_id]);
     return $stmt->fetchAll();
@@ -38,30 +36,36 @@ function getNotesForUser($user_id) {
 function initializeDefaultSubjects($user_id) {
     global $pdo;
     
+    // Check if user already has subjects
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM subjects WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $count = $stmt->fetchColumn();
+    
+    if ($count > 0) {
+        return; // User already has subjects
+    }
+    
     $default_subjects = [
-        ['name' => 'Computing', 'icon' => 'fas fa-laptop-code', 'color' => '#3b82f6', 'description' => 'Programming and computer science'],
-        ['name' => 'History & Social Studies', 'icon' => 'fas fa-landmark', 'color' => '#f59e0b', 'description' => 'Historical events and society'],
-        ['name' => 'Chemistry & Physics', 'icon' => 'fas fa-atom', 'color' => '#10b981', 'description' => 'Sciences and experiments'],
-        ['name' => 'English', 'icon' => 'fas fa-book-open', 'color' => '#ef4444', 'description' => 'Language and literature'],
-        ['name' => 'Chinese', 'icon' => 'fas fa-language', 'color' => '#f97316', 'description' => 'Chinese language studies'],
-        ['name' => 'Math', 'icon' => 'fas fa-calculator', 'color' => '#8b5cf6', 'description' => 'Mathematics and algebra'],
-        ['name' => 'A-Math', 'icon' => 'fas fa-square-root-alt', 'color' => '#ec4899', 'description' => 'Advanced mathematics'],
-        ['name' => 'Electronics', 'icon' => 'fas fa-microchip', 'color' => '#06b6d4', 'description' => 'Electronic circuits and components']
+        ['name' => 'Computing', 'icon' => 'fas fa-laptop-code', 'description' => 'Programming and computer science'],
+        ['name' => 'History & Social Studies', 'icon' => 'fas fa-landmark', 'description' => 'Historical events and society'],
+        ['name' => 'Chemistry & Physics', 'icon' => 'fas fa-atom', 'description' => 'Sciences and experiments'],
+        ['name' => 'English', 'icon' => 'fas fa-book-open', 'description' => 'Language and literature'],
+        ['name' => 'Chinese', 'icon' => 'fas fa-language', 'description' => 'Chinese language studies'],
+        ['name' => 'Math', 'icon' => 'fas fa-calculator', 'description' => 'Mathematics and algebra'],
+        ['name' => 'A-Math', 'icon' => 'fas fa-square-root-alt', 'description' => 'Advanced mathematics'],
+        ['name' => 'Electronics', 'icon' => 'fas fa-microchip', 'description' => 'Electronic circuits and components']
     ];
 
-    foreach ($default_subjects as $index => $subject) {
-        // Insert subject if it doesn't exist
-        $stmt = $pdo->prepare("INSERT IGNORE INTO subjects (name, icon, description) VALUES (?, ?, ?)");
-        $stmt->execute([$subject['name'], $subject['icon'], $subject['description']]);
+    foreach ($default_subjects as $subject) {
+        $stmt = $pdo->prepare("INSERT INTO subjects (user_id, name, icon, description) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$user_id, $subject['name'], $subject['icon'], $subject['description']]);
         
-        // Get subject ID
-        $stmt = $pdo->prepare("SELECT id FROM subjects WHERE name = ?");
-        $stmt->execute([$subject['name']]);
-        $subject_id = $stmt->fetchColumn();
-        
-        // Link user to subject
-        $stmt = $pdo->prepare("INSERT IGNORE INTO user_subjects (user_id, subject_id, position, color) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$user_id, $subject_id, $index + 1, $subject['color']]);
+        // Create directory for subject files
+        $subject_id = $pdo->lastInsertId();
+        $subject_dir = "../uploads/{$user_id}/subjects/{$subject_id}";
+        if (!file_exists($subject_dir)) {
+            mkdir($subject_dir, 0755, true);
+        }
     }
 }
 

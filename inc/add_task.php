@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $title = trim($input['title'] ?? '');
+$subject_id = isset($input['subject_id']) ? (int)$input['subject_id'] : null;
 $user_id = $_SESSION['user_id'];
 
 if (empty($title)) {
@@ -19,8 +20,8 @@ if (empty($title)) {
 }
 
 try {
-    $stmt = $pdo->prepare("INSERT INTO tasks (user_id, title, created_at) VALUES (?, ?, NOW())");
-    $stmt->execute([$user_id, $title]);
+    $stmt = $pdo->prepare("INSERT INTO tasks (user_id, title, subject_id, created_at) VALUES (?, ?, ?, NOW())");
+    $stmt->execute([$user_id, $title, $subject_id]);
     
     echo json_encode(['success' => true, 'task_id' => $pdo->lastInsertId()]);
 } catch (PDOException $e) {

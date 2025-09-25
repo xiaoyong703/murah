@@ -13,7 +13,7 @@ CREATE TABLE users (
     last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Subjects table
+-- Subjects table (now user-specific)
 CREATE TABLE subjects (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -30,10 +30,12 @@ CREATE TABLE subjects (
 CREATE TABLE tasks (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
+    subject_id INT,
     title VARCHAR(255) NOT NULL,
     completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL
 );
 
 -- Notes table
@@ -41,24 +43,7 @@ CREATE TABLE notes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     type ENUM('quick', 'subject') DEFAULT 'quick',
-    content LONGTEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Insert default subjects
-INSERT INTO subjects (name, icon, description) VALUES
-('Computing', 'fas fa-laptop-code', 'Programming and computer science'),
-('History & Social Studies', 'fas fa-landmark', 'Historical events and society'),
-('Chemistry & Physics', 'fas fa-atom', 'Sciences and experiments'),
-('English', 'fas fa-book-open', 'Language and literature'),
-('Chinese', 'fas fa-language', 'Chinese language studies'),
-('Math', 'fas fa-calculator', 'Mathematics and algebra'),
-('A-Math', 'fas fa-square-root-alt', 'Advanced mathematics'),
-('Electronics', 'fas fa-microchip', 'Electronic circuits and components');
-    type ENUM('quick', 'subject', 'general') DEFAULT 'general',
-    title VARCHAR(255),
+    subject_id INT,
     content LONGTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -66,38 +51,46 @@ INSERT INTO subjects (name, icon, description) VALUES
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL
 );
 
--- Files table
-CREATE TABLE files (
+-- Uploaded files table
+CREATE TABLE uploaded_files (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     subject_id INT,
     filename VARCHAR(255) NOT NULL,
-    original_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    file_size INT,
+    original_filename VARCHAR(255) NOT NULL,
+    file_path TEXT NOT NULL,
+    file_size INT NOT NULL,
     mime_type VARCHAR(100),
-    category VARCHAR(100),
-    description TEXT,
-    tags TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
 
--- Flashcards table
+-- Flashcards table 
 CREATE TABLE flashcards (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     subject_id INT,
-    deck_name VARCHAR(255) NOT NULL,
     question TEXT NOT NULL,
     answer TEXT NOT NULL,
     difficulty ENUM('easy', 'medium', 'hard') DEFAULT 'medium',
     last_reviewed TIMESTAMP NULL,
-    review_count INT DEFAULT 0,
-    correct_count INT DEFAULT 0,
+    times_reviewed INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+);
+
+-- Session data table
+CREATE TABLE session_data (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    session_type ENUM('study', 'break') DEFAULT 'study',
+    duration INT NOT NULL,
+    subject_id INT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL
 );
@@ -113,14 +106,3 @@ CREATE TABLE wallpapers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- Insert default subjects
-INSERT INTO subjects (name, icon, description) VALUES
-('Computing', 'fas fa-laptop-code', 'Programming and computer science'),
-('History & Social Studies', 'fas fa-landmark', 'Historical events and society'),
-('Chemistry & Physics', 'fas fa-atom', 'Sciences and experiments'),
-('English', 'fas fa-book-open', 'Language and literature'),
-('Chinese', 'fas fa-language', 'Chinese language studies'),
-('Math', 'fas fa-calculator', 'Mathematics and algebra'),
-('A-Math', 'fas fa-square-root-alt', 'Advanced mathematics'),
-('Electronics', 'fas fa-microchip', 'Electronic circuits and components');
