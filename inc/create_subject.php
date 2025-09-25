@@ -51,6 +51,24 @@ if (!preg_match('/^(fas|far|fab) fa-[\w-]+$/', $icon)) {
 }
 
 try {
+    // First, check if the subjects table has user_id column
+    $stmt = $pdo->query("SHOW COLUMNS FROM subjects LIKE 'user_id'");
+    $has_user_id = $stmt->fetch();
+    
+    if (!$has_user_id) {
+        // Old schema - add user_id column
+        $pdo->exec("ALTER TABLE subjects ADD COLUMN user_id INT NOT NULL DEFAULT 1");
+        $pdo->exec("ALTER TABLE subjects ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE");
+        $pdo->exec("DROP INDEX name");
+        $pdo->exec("ALTER TABLE subjects ADD UNIQUE KEY unique_user_subject (user_id, name)");
+        
+        // Add updated_at column if it doesn't exist
+        $stmt = $pdo->query("SHOW COLUMNS FROM subjects LIKE 'updated_at'");
+        if (!$stmt->fetch()) {
+            $pdo->exec("ALTER TABLE subjects ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+        }
+    }
+    
     // Check if user already has a subject with this name
     $stmt = $pdo->prepare("SELECT id FROM subjects WHERE user_id = ? AND name = ?");
     $stmt->execute([$user_id, $name]);
@@ -86,6 +104,19 @@ try {
 } catch (Exception $e) {
     error_log("Error creating subject: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    
+    // Provide more specific error messages for debugging
+    $error_message = 'Database error occurred';
+    if (strpos($e->getMessage(), 'user_id') !== false) {
+        $error_message = 'Database schema needs updating. Please run the migration script.';
+    } elseif (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+        $error_message = 'A subject with this name already exists.';
+    }
+    
+    echo json_encode([
+        'success' => false, 
+        'message' => $error_message,
+        'debug' => $e->getMessage() // Remove this in production
+    ]);
 }
 ?>

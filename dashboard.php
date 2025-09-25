@@ -1106,12 +1106,13 @@ try {
                     closeSubjectModal();
                     location.reload();
                 } else {
-                    alert('Error: ' + data.message);
+                    alert('Error: ' + data.message + (data.debug ? '\n\nDebug: ' + data.debug : ''));
+                    console.error('Server error:', data);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Network error occurred');
+                alert('Network error occurred. Check console for details.');
             });
         }
 
