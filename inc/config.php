@@ -1,9 +1,9 @@
 <?php
 // Database configuration
 $host = 'localhost';
-$dbname = 'x4483_revision_hq';
-$username = 'xynx4483_dbuser'; // Change this to your cPanel MySQL username
-$password = 'H}{$_QM2$.=Mb?s=';     // Change this to your cPanel MySQL password
+$dbname = 'xynx4483_revision_hq';  // Fixed: was missing 'yn'
+$username = 'xynx4483_dbuser';
+$password = 'H}{$_QM2$.=Mb?s=';
 
 // Google OAuth configuration
 define('GOOGLE_CLIENT_ID', '707730920463-tf7svsd22kt8jh5jjsq9llp4ti1lchd9.apps.googleusercontent.com'); // Your Google OAuth Client ID
