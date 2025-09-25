@@ -391,13 +391,185 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
 
     <script src="../script.js"></script>
     <script>
-        // Basic functionality placeholders
+        // File upload functionality
         function uploadFile() {
-            alert('File upload feature coming soon!');
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeUploadModal(event)">
+                    <div style="background: var(--bg-secondary); border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px;" onclick="event.stopPropagation()">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="color: var(--text); margin: 0;">📁 Upload File</h2>
+                            <button onclick="closeUploadModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer;">&times;</button>
+                        </div>
+                        
+                        <form onsubmit="handleFileUpload(event)">
+                            <div style="margin-bottom: 1.5rem;">
+                                <input type="file" id="fileInput" required multiple
+                                       style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);">
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Description (optional)</label>
+                                <input type="text" id="fileDescription" maxlength="255"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);"
+                                       placeholder="Brief description of the file(s)">
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" onclick="closeUploadModal()" 
+                                        style="flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        style="flex: 1; background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Upload Files
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            modal.id = 'uploadModal';
+            document.body.appendChild(modal);
+        }
+
+        function closeUploadModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('uploadModal');
+            if (modal) modal.remove();
+        }
+
+        function handleFileUpload(event) {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const description = document.getElementById('fileDescription').value;
+            
+            if (!fileInput.files.length) {
+                alert('Please select at least one file');
+                return;
+            }
+            
+            const formData = new FormData();
+            for (let file of fileInput.files) {
+                formData.append('files[]', file);
+            }
+            formData.append('subject_id', <?php echo $subject_id; ?>);
+            formData.append('description', description);
+            
+            fetch('../inc/upload_file.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeUploadModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Upload failed. Please try again.');
+            });
         }
         
+        // Flashcard creation functionality
         function createFlashcard() {
-            alert('Flashcard creation feature coming soon!');
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeFlashcardModal(event)">
+                    <div style="background: var(--bg-secondary); border-radius: 16px; padding: 2rem; width: 90%; max-width: 600px;" onclick="event.stopPropagation()">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="color: var(--text); margin: 0;">🃏 Create Flashcard</h2>
+                            <button onclick="closeFlashcardModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer;">&times;</button>
+                        </div>
+                        
+                        <form onsubmit="handleFlashcardCreate(event)">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Question</label>
+                                <textarea id="flashcardQuestion" required rows="3" maxlength="500"
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); resize: vertical;"
+                                          placeholder="Enter your question here..."></textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Answer</label>
+                                <textarea id="flashcardAnswer" required rows="3" maxlength="1000"
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); resize: vertical;"
+                                          placeholder="Enter the answer here..."></textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Difficulty</label>
+                                <select id="flashcardDifficulty" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" onclick="closeFlashcardModal()" 
+                                        style="flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        style="flex: 1; background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Create Flashcard
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            modal.id = 'flashcardModal';
+            document.body.appendChild(modal);
+        }
+
+        function closeFlashcardModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('flashcardModal');
+            if (modal) modal.remove();
+        }
+
+        function handleFlashcardCreate(event) {
+            event.preventDefault();
+            
+            const question = document.getElementById('flashcardQuestion').value.trim();
+            const answer = document.getElementById('flashcardAnswer').value.trim();
+            const difficulty = document.getElementById('flashcardDifficulty').value;
+            
+            if (!question || !answer) {
+                alert('Please fill in both question and answer');
+                return;
+            }
+            
+            fetch('../inc/create_flashcard.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    subject_id: <?php echo $subject_id; ?>,
+                    question: question,
+                    answer: answer,
+                    difficulty: difficulty
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeFlashcardModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create flashcard. Please try again.');
+            });
         }
         
         function addTask() {
