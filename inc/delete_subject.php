@@ -29,15 +29,23 @@ if (empty($input['subject_id'])) {
 $subject_id = (int)$input['subject_id'];
 $user_id = $_SESSION['user_id'];
 
+// Check if subjects table has user_id column
+$stmt = $pdo->query("SHOW COLUMNS FROM subjects LIKE 'user_id'");
+$has_user_id = $stmt->fetch();
+
 try {
     // Verify that the subject belongs to the current user
-    $stmt = $pdo->prepare("SELECT id, name FROM subjects WHERE id = ? AND user_id = ?");
-    $stmt->execute([$subject_id, $user_id]);
+    if ($has_user_id) {
+        $stmt = $pdo->prepare("SELECT id, name FROM subjects WHERE id = ? AND user_id = ?");
+        $stmt->execute([$subject_id, $user_id]);
+    } else {
+        $stmt = $pdo->prepare("SELECT id, name FROM subjects WHERE id = ?");
+        $stmt->execute([$subject_id]);
+    }
     $subject = $stmt->fetch();
     
     if (!$subject) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Subject not found or access denied']);
+        echo json_encode(['success' => false, 'message' => 'Subject not found']);
         exit;
     }
     
@@ -45,21 +53,41 @@ try {
     $pdo->beginTransaction();
     
     try {
-        // Delete flashcards associated with this subject
-        $stmt = $pdo->prepare("DELETE FROM flashcards WHERE subject_id = ?");
-        $stmt->execute([$subject_id]);
+        // Delete flashcards associated with this subject (if table exists)
+        try {
+            $stmt = $pdo->prepare("DELETE FROM flashcards WHERE subject_id = ?");
+            $stmt->execute([$subject_id]);
+        } catch (Exception $e) {
+            // Table might not exist
+        }
         
-        // Delete tasks associated with this subject (if you have such a table)
-        $stmt = $pdo->prepare("DELETE FROM tasks WHERE subject_id = ?");
-        $stmt->execute([$subject_id]);
+        // Delete uploaded files associated with this subject (if table exists)
+        try {
+            $stmt = $pdo->prepare("DELETE FROM uploaded_files WHERE subject_id = ?");
+            $stmt->execute([$subject_id]);
+        } catch (Exception $e) {
+            // Table might not exist
+        }
         
-        // Delete uploaded files associated with this subject
-        $stmt = $pdo->prepare("DELETE FROM uploaded_files WHERE subject_id = ?");
-        $stmt->execute([$subject_id]);
+        // Delete tasks associated with this subject (if column exists)
+        try {
+            $stmt = $pdo->query("SHOW COLUMNS FROM tasks LIKE 'subject_id'");
+            if ($stmt->fetch()) {
+                $stmt = $pdo->prepare("DELETE FROM tasks WHERE subject_id = ?");
+                $stmt->execute([$subject_id]);
+            }
+        } catch (Exception $e) {
+            // Column might not exist
+        }
         
         // Delete the subject itself
-        $stmt = $pdo->prepare("DELETE FROM subjects WHERE id = ? AND user_id = ?");
-        $stmt->execute([$subject_id, $user_id]);
+        if ($has_user_id) {
+            $stmt = $pdo->prepare("DELETE FROM subjects WHERE id = ? AND user_id = ?");
+            $stmt->execute([$subject_id, $user_id]);
+        } else {
+            $stmt = $pdo->prepare("DELETE FROM subjects WHERE id = ?");
+            $stmt->execute([$subject_id]);
+        }
         
         // Commit the transaction
         $pdo->commit();
@@ -83,8 +111,11 @@ try {
     
 } catch (Exception $e) {
     error_log("Error deleting subject: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Database error occurred',
+        'debug' => $e->getMessage()
+    ]);
 }
 
 // Helper function to recursively remove directory

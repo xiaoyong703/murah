@@ -242,13 +242,21 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
         <div class="subject-icon-large">
             <i class="<?php echo $subject['icon']; ?>"></i>
         </div>
-        <div>
+        <div style="flex: 1;">
             <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--text);">
                 <?php echo htmlspecialchars($subject['name']); ?>
             </h1>
             <p style="color: var(--text-secondary); font-size: 1.1rem;">
                 <?php echo htmlspecialchars($subject['description'] ?: 'Organize your study materials and track your progress'); ?>
             </p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+            <button onclick="editSubject()" class="btn-secondary" style="padding: 0.75rem 1.5rem;">
+                <i class="fas fa-edit"></i> Edit Subject
+            </button>
+            <button onclick="deleteSubject()" class="btn-danger" style="padding: 0.75rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <i class="fas fa-trash"></i> Delete Subject
+            </button>
         </div>
     </div>
 
@@ -647,6 +655,61 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             updateTimerDisplay();
         }
         
+        function editSubject() {
+            const name = prompt('Enter new subject name:', '<?php echo addslashes($subject['name']); ?>');
+            if (name && name.trim()) {
+                const description = prompt('Enter new description (optional):', '<?php echo addslashes($subject['description'] ?? ''); ?>');
+                
+                fetch('../inc/update_subject.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        subject_id: <?php echo $subject_id; ?>,
+                        name: name.trim(),
+                        description: description ? description.trim() : '',
+                        icon: '<?php echo $subject['icon']; ?>' // Keep current icon for now
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Network error occurred');
+                });
+            }
+        }
+
+        function deleteSubject() {
+            if (!confirm('Are you sure you want to delete "<?php echo addslashes($subject['name']); ?>"?\n\nThis will permanently delete:\n• All files uploaded to this subject\n• All flashcards created for this subject\n• All tasks associated with this subject\n\nThis action cannot be undone.')) {
+                return;
+            }
+            
+            fetch('../inc/delete_subject.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({subject_id: <?php echo $subject_id; ?>})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Subject deleted successfully');
+                    window.location.href = '../dashboard.php';
+                } else {
+                    alert('Error: ' + data.message + (data.debug ? '\n\nDebug: ' + data.debug : ''));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
+            });
+        }
+
         function toggleTheme() {
             const html = document.documentElement;
             const currentTheme = html.getAttribute('data-theme');
