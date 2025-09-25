@@ -1,7 +1,13 @@
 <?php
 session_start();
-require_once '../inc/config.php';
-require_once '../inc/functions.php';
+
+try {
+    require_once '../inc/config.php';
+    require_once '../inc/functions.php';
+} catch (Exception $e) {
+    header('Location: ../dashboard.php?error=config');
+    exit;
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -19,29 +25,73 @@ if (!$subject_id) {
 }
 
 // Get subject details
-$stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = ? AND user_id = ?");
-$stmt->execute([$subject_id, $user_id]);
-$subject = $stmt->fetch();
-
-if (!$subject) {
-    header('Location: ../dashboard.php');
+try {
+    // Check if subjects table has user_id column
+    $stmt = $pdo->query("SHOW COLUMNS FROM subjects LIKE 'user_id'");
+    $has_user_id = $stmt->fetch();
+    
+    if ($has_user_id) {
+        $stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = ? AND user_id = ?");
+        $stmt->execute([$subject_id, $user_id]);
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM subjects WHERE id = ?");
+        $stmt->execute([$subject_id]);
+    }
+    
+    $subject = $stmt->fetch();
+    
+    if (!$subject) {
+        header('Location: ../dashboard.php');
+        exit;
+    }
+} catch (Exception $e) {
+    header('Location: ../dashboard.php?error=database');
     exit;
 }
 
-// Get uploaded files for this subject
-$stmt = $pdo->prepare("SELECT * FROM uploaded_files WHERE subject_id = ? ORDER BY created_at DESC");
-$stmt->execute([$subject_id]);
-$files = $stmt->fetchAll();
+// Get uploaded files for this subject (if table exists)
+$files = [];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM uploaded_files WHERE subject_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$subject_id]);
+    $files = $stmt->fetchAll();
+} catch (Exception $e) {
+    // Table doesn't exist yet
+    $files = [];
+}
 
-// Get flashcards for this subject
-$stmt = $pdo->prepare("SELECT * FROM flashcards WHERE subject_id = ? ORDER BY created_at DESC LIMIT 10");
-$stmt->execute([$subject_id]);
-$flashcards = $stmt->fetchAll();
+// Get flashcards for this subject (if table exists)
+$flashcards = [];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM flashcards WHERE subject_id = ? ORDER BY created_at DESC LIMIT 10");
+    $stmt->execute([$subject_id]);
+    $flashcards = $stmt->fetchAll();
+} catch (Exception $e) {
+    // Table doesn't exist yet
+    $flashcards = [];
+}
 
 // Get subject-specific tasks
-$stmt = $pdo->prepare("SELECT * FROM tasks WHERE user_id = ? AND (subject_id = ? OR subject_id IS NULL) ORDER BY created_at DESC LIMIT 10");
-$stmt->execute([$user_id, $subject_id]);
-$tasks = $stmt->fetchAll();
+$tasks = [];
+try {
+    // Check if tasks table has subject_id column
+    $stmt = $pdo->query("SHOW COLUMNS FROM tasks LIKE 'subject_id'");
+    $has_subject_id = $stmt->fetch();
+    
+    if ($has_subject_id) {
+        $stmt = $pdo->prepare("SELECT * FROM tasks WHERE user_id = ? AND (subject_id = ? OR subject_id IS NULL) ORDER BY created_at DESC LIMIT 10");
+        $stmt->execute([$user_id, $subject_id]);
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC LIMIT 10");
+        $stmt->execute([$user_id]);
+    }
+    $tasks = $stmt->fetchAll();
+} catch (Exception $e) {
+    // Use basic task query
+    $stmt = $pdo->prepare("SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC LIMIT 10");
+    $stmt->execute([$user_id]);
+    $tasks = $stmt->fetchAll();
+}
 
 // Get user theme
 $stmt = $pdo->prepare("SELECT theme FROM users WHERE id = ?");
