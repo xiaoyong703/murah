@@ -1,12 +1,12 @@
 <?php
 // Database configuration
 $host = 'localhost';
-$dbname = 'revision_hq';
-$username = 'root'; // Change this to your cPanel MySQL username
-$password = '';     // Change this to your cPanel MySQL password
+$dbname = 'x4483_revision_hq';
+$username = 'xynx4483_dbuser'; // Change this to your cPanel MySQL username
+$password = 'H}{$_QM2$.=Mb?s=';     // Change this to your cPanel MySQL password
 
 // Google OAuth configuration
-define('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID_HERE'); // Replace with your actual client ID
+define('GOOGLE_CLIENT_ID', '707730920463-tf7svsd22kt8jh5jjsq9llp4ti1lchd9.apps.googleusercontent.com'); // Your Google OAuth Client ID
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
