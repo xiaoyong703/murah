@@ -135,7 +135,7 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             margin: 0 auto;
             padding: 2rem;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
             gap: 2rem;
         }
         
@@ -194,24 +194,70 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
         }
         
         .btn-small {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.25rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
+            font-weight: 500;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
+            transition: all 0.2s ease;
         }
         
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); }
+        .btn-primary { 
+            background: var(--primary); 
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3b82f6;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary { 
+            background: var(--bg-secondary); 
+            color: var(--text); 
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
         
         @media (max-width: 768px) {
             .subject-content {
                 grid-template-columns: 1fr;
                 padding: 1rem;
+                gap: 1.5rem;
+            }
+            
+            .subject-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .subject-header > div:last-child {
+                display: flex;
+                gap: 0.5rem;
+                width: 100%;
+            }
+            
+            .subject-header > div:last-child button {
+                flex: 1;
+                padding: 0.5rem 1rem !important;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -251,10 +297,10 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
             </p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: flex-start;">
-            <button onclick="editSubject()" class="btn-secondary" style="padding: 0.75rem 1.5rem;">
+            <button onclick="editSubject()" class="btn-secondary btn-small">
                 <i class="fas fa-edit"></i> Edit Subject
             </button>
-            <button onclick="deleteSubject()" class="btn-danger" style="padding: 0.75rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">
+            <button onclick="deleteSubject()" class="btn-danger btn-small">
                 <i class="fas fa-trash"></i> Delete Subject
             </button>
         </div>
@@ -656,37 +702,94 @@ $user_theme = $stmt->fetchColumn() ?: 'light';
         }
         
         function editSubject() {
-            const name = prompt('Enter new subject name:', '<?php echo addslashes($subject['name']); ?>');
-            if (name && name.trim()) {
-                const description = prompt('Enter new description (optional):', '<?php echo addslashes($subject['description'] ?? ''); ?>');
-                
-                fetch('../inc/update_subject.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        subject_id: <?php echo $subject_id; ?>,
-                        name: name.trim(),
-                        description: description ? description.trim() : '',
-                        icon: '<?php echo $subject['icon']; ?>' // Keep current icon for now
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Network error occurred');
-                });
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeEditModal(event)">
+                    <div style="background: var(--bg-secondary); border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px;" onclick="event.stopPropagation()">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="color: var(--text); margin: 0;">✏️ Edit Subject</h2>
+                            <button onclick="closeEditModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer;">&times;</button>
+                        </div>
+                        
+                        <form onsubmit="handleSubjectEdit(event)">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Subject Name</label>
+                                <input type="text" id="editSubjectName" required maxlength="100" 
+                                       value="${'<?php echo htmlspecialchars($subject['name'], ENT_QUOTES); ?>'}"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);"
+                                       placeholder="Enter subject name">
+                            </div>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Description</label>
+                                <textarea id="editSubjectDescription" maxlength="255" rows="3"
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); resize: vertical;"
+                                          placeholder="Brief description of this subject...">${'<?php echo htmlspecialchars($subject['description'] ?? '', ENT_QUOTES); ?>'}</textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" onclick="closeEditModal()" 
+                                        style="flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        style="flex: 1; background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.75rem; cursor: pointer;">
+                                    Update Subject
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            modal.id = 'editSubjectModal';
+            document.body.appendChild(modal);
+        }
+
+        function closeEditModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('editSubjectModal');
+            if (modal) modal.remove();
+        }
+
+        function handleSubjectEdit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('editSubjectName').value.trim();
+            const description = document.getElementById('editSubjectDescription').value.trim();
+            
+            if (!name) {
+                alert('Please enter a subject name');
+                return;
             }
+            
+            fetch('../inc/update_subject.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    subject_id: <?php echo $subject_id; ?>,
+                    name: name,
+                    description: description,
+                    icon: '<?php echo $subject['icon']; ?>'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeEditModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message + (data.debug ? '\n\nDebug: ' + data.debug : ''));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error occurred');
+            });
         }
 
         function deleteSubject() {
-            if (!confirm('Are you sure you want to delete "<?php echo addslashes($subject['name']); ?>"?\n\nThis will permanently delete:\n• All files uploaded to this subject\n• All flashcards created for this subject\n• All tasks associated with this subject\n\nThis action cannot be undone.')) {
+            const subjectName = '<?php echo htmlspecialchars($subject['name'], ENT_QUOTES); ?>';
+            if (!confirm(`Are you sure you want to delete "${subjectName}"?\n\nThis will permanently delete:\n• All files uploaded to this subject\n• All flashcards created for this subject\n• All tasks associated with this subject\n\nThis action cannot be undone.`)) {
                 return;
             }
             
