@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revision - Study Smarter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="index.html">Revision</a>
+            <nav class="nav-items">
+                <a href="#features">Features</a>
+                <a href="#contact">Contact</a>
+                <a class="btn btn-ghost" href="../dashboard.html">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <p class="kicker">Questions or feedback? Reach out any time.</p>
+                    <h1>Study Smarter, Not Harder</h1>
+                    <p class="lead">Master any subject with flashcards, spaced repetition, and progress tracking. Join thousands of students getting better grades.</p>
+                    <div class="cta">
+                        <a class="btn btn-primary" href="../dashboard.html">Start Free Trial</a>
+                        <a class="btn btn-secondary" href="#features">Watch Demo</a>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <div class="card-top">
+                        <div class="stat">25K+</div>
+                        <div class="stat-label">AI Flashcards</div>
+                    </div>
+                    <p>Generate smart flashcards automatically from your notes and textbooks using advanced AI.</p>
+                    <ul class="features-list">
+                        <li>Spaced repetition</li>
+                        <li>Progress tracking</li>
+                        <li>Offline reviews</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="container features">
+            <h2>Trusted by students</h2>
+            <div class="cards">
+                <article class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 13l-10-5v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7l-10 5z"/></svg>
+                    <h3>AI-powered</h3>
+                    <p>Auto-generate flashcards from your notes and textbooks in seconds.</p>
+                </article>
+                <article class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24"><path d="M12 1v22M1 12h22"/></svg>
+                    <h3>Spaced repetition</h3>
+                    <p>Smart scheduling improves memory retention with minimal effort.</p>
+                </article>
+                <article class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+                    <h3>Progress tracking</h3>
+                    <p>Visualize learning progress and focus your study time where it matters.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="contact" class="container contact">
+            <div class="contact-inner">
+                <div>
+                    <h3>Email</h3>
+                    <p>hello@revisionhq.test</p>
+                </div>
+                <form class="newsletter" action="auth.php" method="POST">
+                    <label for="email">Students</label>
+                    <input id="email" name="email" type="email" placeholder="you@example.com" required>
+                    <button class="btn btn-primary" type="submit">Join 500K+</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <small>© Revision — Your data stays yours. Always.</small>
+            <nav>
+                <a href="#privacy">Privacy</a>
+                <a href="#terms">Terms</a>
+            </nav>
+        </div>
+    </footer>
+</body>
+</html>
